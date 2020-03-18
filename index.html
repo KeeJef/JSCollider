@@ -1,19 +1,59 @@
 <!DOCTYPE html>
-<html>
-<body>
-
-<canvas id="myCanvas" width="200" height="100"
-style="border:1px solid #d3d3d3;">
-Your browser does not support the canvas element.
-</canvas>
 
 <script>
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
-ctx.beginPath();
-ctx.arc(95,50,40,0,2*Math.PI);
-ctx.stroke();
-</script> 
 
-</body>
-</html>
+    var context;
+    var x=100; //Start position
+    var y=200;
+    var dx=5;
+    var dy=5; // Move each round
+    var rad = 10
+
+    ballarray = []
+
+    function Ball(startx, starty, movementx, movementy, radius) {
+
+        this.startx = startx;
+        this.starty = starty;
+        this.movementx = movementx;
+        this.movementy = movementy;
+        this.radius = radius
+    }
+    
+    function init()
+    {
+      context= myCanvas.getContext('2d');
+      setInterval(draw,40); // dont call draw
+
+        for (let index = 0; index < 10; index++) {
+             //create ball objects
+            var ball = new Ball(startx = 100, starty = 200, movementx = 5, movementy = 5, radius= 10)
+            ballarray.push(ball)
+            
+        }
+    }
+    
+    function draw()
+    {
+
+    //just need to draw the whole array and evaluate functions for positions of each object
+
+      context.clearRect(0,0, 300,300);
+      context.beginPath();
+      context.fillStyle="#0000ff";
+      // Draws a circle of radius 20 at the coordinates 100,100 on the canvas
+      context.arc(x,y,rad,0,Math.PI*2,true);
+      context.closePath();
+      context.fill();
+      // Boundary Logic
+    if( (x-rad)<0 || (x+rad)>300) dx=-dx; 
+    if( (y-rad)<0 || (y+rad)>300) dy=-dy; 
+    x+=dx; 
+    y+=dy;
+    }
+    
+    </script>
+    <body onLoad="init();">
+      <canvas id="myCanvas" width="300" height="300" style="border:1px solid #000000;">
+      </canvas>
+    </body>
