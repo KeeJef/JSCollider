@@ -4,6 +4,7 @@
 
     var context;
     var rad = 10
+    var distsep = 12
     var edgeupper = 300 - rad // dont spawn the object outside of the screen
     var edgelower = 0 + rad
 
@@ -30,6 +31,60 @@
             var ball = new Ball(xpos = randomx, ypos = randomy, movementx = 5, movementy = 5, rad)
             ballarray.push(ball)
             
+        }
+
+        //ensure elements have not been placed overlapping 
+
+        for (let index = 0; index < ballarray.length; index++) {
+          //load up first element x and y values
+          checkx = ballarray[index].xpos
+          checky = ballarray[index].ypos
+          currentelement = index
+
+          for (let index = 0; index < ballarray.length; index++) {
+            
+            if (currentelement == index) {
+              //dont self compare, if we are go next
+              continue
+            }
+            
+            if (Math.abs(checkx - ballarray[index].xpos) < distsep ) {
+              
+              //if the difference between the loaded element and the comparison element is less than + or - 10 then we know theres a collison
+              difference = checkx-ballarray[index].xpos
+
+              if (difference < 0) {
+                //If the difference is negative then adjust to be atleast 10 negative
+                difference = difference + distsep
+                ballarray[index].xpos += difference
+
+              }
+              else{
+                //If the difference is positive then adjust to be atleast 10 positive
+                difference = difference - distsep
+                ballarray[index].xpos += difference
+              }
+            }
+            if (Math.abs(checky - ballarray[index].ypos) < 10 ) {
+              //Do the same checks as above for the Y axis
+              difference = checky-ballarray[index].ypos
+
+              if (difference < 0) {
+
+                difference = difference + distsep
+                ballarray[index].ypos += difference
+                
+                //changing the postion of one node could put you in conflict with another node
+
+              }
+              else{
+                difference = difference - distsep
+                ballarray[index].ypos += difference
+              }
+            }
+            
+          }
+          
         }
     }
     
