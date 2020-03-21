@@ -19,8 +19,8 @@
         this.radius = radius
     }
     
-    function init()
-    {
+    function init(){
+
       context= myCanvas.getContext('2d');
       setInterval(draw,40); // dont call draw
 
@@ -28,64 +28,38 @@
              //create ball objects
             let randomx = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
             let randomy = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
+
             var ball = new Ball(xpos = randomx, ypos = randomy, movementx = 5, movementy = 5, rad)
-            ballarray.push(ball)
-            
-        }
 
-        //ensure elements have not been placed overlapping 
+            if (index >=1) {
 
-        for (let index = 0; index < ballarray.length; index++) {
-          //load up first element x and y values
-          checkx = ballarray[index].xpos
-          checky = ballarray[index].ypos
-          currentelement = index
-
-          for (let index = 0; index < ballarray.length; index++) {
-            
-            if (currentelement == index) {
-              //dont self compare, if we are go next
-              continue
-            }
-            
-            if (Math.abs(checkx - ballarray[index].xpos) < distsep ) {
-              
-              //if the difference between the loaded element and the comparison element is less than + or - 10 then we know theres a collison
-              difference = checkx-ballarray[index].xpos
-
-              if (difference < 0) {
-                //If the difference is negative then adjust to be atleast 10 negative
-                difference = difference + distsep
-                ballarray[index].xpos += difference
-
-              }
-              else{
-                //If the difference is positive then adjust to be atleast 10 positive
-                difference = difference - distsep
-                ballarray[index].xpos += difference
-              }
-            }
-            if (Math.abs(checky - ballarray[index].ypos) < 10 ) {
-              //Do the same checks as above for the Y axis
-              difference = checky-ballarray[index].ypos
-
-              if (difference < 0) {
-
-                difference = difference + distsep
-                ballarray[index].ypos += difference
+              for (let index = 0; index < ballarray.length; index++) {
                 
-                //changing the postion of one node could put you in conflict with another node
+                while (Math.abs(ball.xpos - ballarray[index].xpos) <= distsep) {
+                  
+                  let randomx = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
+                  
 
+                  ball.xpos = randomx
+                }
+
+                while (Math.abs(ball.ypos - ballarray[index].ypos) <= distsep) {
+                  
+                  let randomy = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
+
+                  ball.ypos = randomy
+                }
+                
               }
-              else{
-                difference = difference - distsep
-                ballarray[index].ypos += difference
-              }
+              
             }
+
+            ballarray.push(ball)
+
             
-          }
-          
         }
+
+        
     }
     
     function draw()
