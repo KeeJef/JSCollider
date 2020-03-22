@@ -10,26 +10,38 @@
 
     ballarray = []
 
-    function Ball(xpos, ypos, movementx, movementy, radius) {
+    function Ball(xpos, ypos, movementx, movementy, radius, ballcolour, ballid) {
 
         this.xpos = xpos;
         this.ypos = ypos;
         this.movementx = movementx;
         this.movementy = movementy;
         this.radius = radius
+        this.ballcolour = ballcolour
+        this.ballid = ballid
     }
     
+    function getRandomColor() {
+      var letters = '0123456789ABCDEF';
+      var color = '#';
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+
     function init(){
 
       context= myCanvas.getContext('2d');
       setInterval(draw,40); // dont call draw
 
-        for (let index = 0; index < 10; index++) {
+        for (let index = 0; index < 3; index++) {
              //create ball objects
             let randomx = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
             let randomy = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
 
-            var ball = new Ball(xpos = randomx, ypos = randomy, movementx = 5, movementy = 5, rad)
+            var ball = new Ball(xpos = randomx, ypos = randomy, movementx = 5, movementy = 5, rad, ballcolour = getRandomColor(), ballid = index)
 
             if (index >=1) {
 
@@ -62,8 +74,7 @@
         
     }
     
-    function draw()
-    {
+    function draw(){
 
     //just need to draw the whole array and evaluate functions for positions of each object
     context.clearRect(0,0, 300,300);
@@ -71,15 +82,46 @@
     for (let index = 0; index < ballarray.length; index++) {
 
       context.beginPath();
-      context.fillStyle="#0000ff";
+      
+      context.fillStyle = ballarray[index].ballcolour
       context.arc(ballarray[index].xpos,ballarray[index].ypos,ballarray[index].radius,0,Math.PI*2,true); 
       context.closePath();
       context.fill();
+
+      // add addtional conditonal statements here for if you are about to hit another ball reverse your position
+
+
+      checkball = ballarray[index]
+      
+      //X and Y comparions must be done at the same time, intersecting Y axis does not nessicary mean collison
+
+      for (let index = 0; index < ballarray.length; index++) {
+
+        if (Math.abs(checkball.xpos - ballarray[index].xpos)<=5 && checkball.ballid != ballarray[index].ballid) {
+          
+            checkball.movementx =- checkball.movementx
+            ballarray[index].movementx =- ballarray[index].movementx
+
+        }
+
+        if (Math.abs(checkball.ypos - ballarray[index].ypos)<=5 && checkball.ballid != ballarray[index].ballid) {
+          
+          checkball.movementy =- checkball.movementy
+          ballarray[index].movementy =- ballarray[index].movementy
+
+      }
+
+        
+      }
+      
+
 
       if( (ballarray[index].xpos-rad)<0 || (ballarray[index].xpos+rad)>300) ballarray[index].movementx=-ballarray[index].movementx; 
       if( (ballarray[index].ypos-rad)<0 || (ballarray[index].ypos+rad)>300) ballarray[index].movementy=-ballarray[index].movementy;
       ballarray[index].xpos+=ballarray[index].movementx; 
       ballarray[index].ypos+=ballarray[index].movementy; 
+
+
     }
 
     }
