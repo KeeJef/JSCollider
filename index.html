@@ -34,14 +34,14 @@
     function init(){
 
       context= myCanvas.getContext('2d');
-      setInterval(draw,40); // dont call draw
+      setInterval(draw,20); // dont call draw
 
         for (let index = 0; index < 3; index++) {
              //create ball objects
             let randomx = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
             let randomy = Math.floor(Math.random()*(edgeupper-edgelower+1)+edgelower)
 
-            var ball = new Ball(xpos = randomx, ypos = randomy, movementx = 5, movementy = 5, rad, ballcolour = getRandomColor(), ballid = index)
+            var ball = new Ball(xpos = randomx, ypos = randomy, movementx = 1, movementy = 1, rad, ballcolour = getRandomColor(), ballid = index)
 
             if (index >=1) {
 
@@ -97,30 +97,24 @@
 
       for (let index = 0; index < ballarray.length; index++) {
 
-        if (Math.abs(checkball.xpos - ballarray[index].xpos)<=5 && checkball.ballid != ballarray[index].ballid) {
+        if( (ballarray[index].xpos-rad)<0 || (ballarray[index].xpos+rad)>300) ballarray[index].movementx=-ballarray[index].movementx; 
+        if( (ballarray[index].ypos-rad)<0 || (ballarray[index].ypos+rad)>300) ballarray[index].movementy=-ballarray[index].movementy;
+        ballarray[index].xpos+=ballarray[index].movementx; 
+        ballarray[index].ypos+=ballarray[index].movementy; 
+
+
+        if (Math.abs(checkball.xpos - ballarray[index].xpos)<=10 && Math.abs(checkball.ypos - ballarray[index].ypos)<=10 && checkball.ballid != ballarray[index].ballid) {
           
             checkball.movementx =- checkball.movementx
             ballarray[index].movementx =- ballarray[index].movementx
+            checkball.movementy =- checkball.movementy
+            ballarray[index].movementy =- ballarray[index].movementy
 
         }
-
-        if (Math.abs(checkball.ypos - ballarray[index].ypos)<=5 && checkball.ballid != ballarray[index].ballid) {
-          
-          checkball.movementy =- checkball.movementy
-          ballarray[index].movementy =- ballarray[index].movementy
-
-      }
 
         
       }
       
-
-
-      if( (ballarray[index].xpos-rad)<0 || (ballarray[index].xpos+rad)>300) ballarray[index].movementx=-ballarray[index].movementx; 
-      if( (ballarray[index].ypos-rad)<0 || (ballarray[index].ypos+rad)>300) ballarray[index].movementy=-ballarray[index].movementy;
-      ballarray[index].xpos+=ballarray[index].movementx; 
-      ballarray[index].ypos+=ballarray[index].movementy; 
-
 
     }
 

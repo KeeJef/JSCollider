@@ -1,0 +1,226 @@
+
+<div>
+    <canvas width="250" height="250"></canvas>
+</div>
+
+<script>
+
+const numBalls = 5;
+const minRadius = 10;
+const maxRadius = 10;
+const initialVelocity = 3;
+
+var canvas;
+var context;
+var balls;
+var speedField;
+
+window.addEventListener('load', app);
+
+function app() {
+
+  canvas = document.querySelector('canvas');
+  context = canvas.getContext('2d');
+
+  speedField = 10
+  canvas.width = 400
+  canvas.height = 400
+
+  generateBalls();
+
+  window.requestAnimationFrame(draw);
+
+}
+
+function generateBalls() {
+  function polarToComponent(magnitude, angle) {
+    return {
+      x: magnitude * Math.cos(angle),
+      y: magnitude * Math.sin(angle)
+    };
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  function getRandom(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  balls = [];
+
+  //constructor for new balls
+  for (let n = 0; n < numBalls; n += 1) {
+    let radius = getRandomInt(minRadius, maxRadius);
+    let ball = {
+      radius: radius,
+      get mass() { return this.radius; }, // trivial: ball mass equals ball size
+      center: {
+        x: getRandomInt(0, canvas.width),
+        y: getRandomInt(0, canvas.height)
+      },
+      nextCenter: {},
+      velocity: polarToComponent(initialVelocity, getRandom(0, 2 * Math.PI)),
+      color: `rgb(${getRandomInt(0, 128)},${getRandomInt(0, 128)},${getRandomInt(0, 128)})`
+    };
+
+    balls.push(ball);
+  }        
+}
+
+function draw() {
+  updatePositions();
+
+  bounceWalls();
+
+  checkCollisions();
+
+  render();
+
+  window.requestAnimationFrame(draw);
+}
+
+function updatePositions() {
+  //first move each ball along its path according to its velocity (Movementx or Movementy)
+  balls.forEach(ball => {
+    ball.nextCenter.x = ball.center.x + ball.velocity.x;
+    ball.nextCenter.y = ball.center.y + ball.velocity.y;
+  });
+}
+
+function bounceWalls() {
+  balls.forEach(ball => {
+
+    let leftEdge = ball.nextCenter.x - ball.radius;
+    let rightEdge = ball.nextCenter.x + ball.radius;
+    let topEdge = ball.nextCenter.y - ball.radius;
+    let bottomEdge = ball.nextCenter.y + ball.radius;
+
+    if (leftEdge <= 0) {
+      ball.velocity.x = -ball.velocity.x;
+      ball.nextCenter.x = ball.radius;
+
+    } else if (rightEdge >= canvas.width) {
+      ball.velocity.x = -ball.velocity.x;
+      ball.nextCenter.x = canvas.width - ball.radius;
+    }
+    if (topEdge <= 0) {
+      ball.velocity.y = -ball.velocity.y;
+      ball.nextCenter.y = ball.radius;
+
+    } else if (bottomEdge >= canvas.height) {
+      ball.velocity.y = -ball.velocity.y;
+      ball.nextCenter.y = canvas.height - ball.radius;
+    }
+  });
+}
+
+// https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects
+function checkCollisions() {
+
+  for (let i = 0; i < balls.length; i += 1) {
+
+    let ballOne = balls[i];
+
+    for (let j = i + 1; j < balls.length; j += 1) {
+
+      let ballTwo = balls[j];
+
+      // direction vector (x1-x2)
+      let direction = { 
+        x: ballOne.center.x - ballTwo.center.x,
+        y: ballOne.center.y - ballTwo.center.y
+      };
+
+      // absolute distance between balls
+      // ||x1-x2||^2
+      let absDistanceSquared = direction.x * direction.x + direction.y * direction.y;
+
+      // minimum distance between balls before they are overlapping; use squares
+      // to save two unnecessary square root calculations)
+      // (r1+r2)^2 
+      let minDistanceSquared = (ballOne.radius + ballTwo.radius) * (ballOne.radius + ballTwo.radius);
+
+      // two balls collide when they are less than r1+r2 distance apart
+      // ||x1-x2||^2 <= (r1+r2)^2
+      if (absDistanceSquared <= minDistanceSquared) {
+
+        // velocity vector (v2-v1)
+        let velocity = { 
+          x: ballTwo.velocity.x - ballOne.velocity.x,
+          y: ballTwo.velocity.y - ballOne.velocity.y
+        };
+
+        // dot product <v2-v1,x1-x2>
+        let dotProduct = velocity.x * direction.x + velocity.y * direction.y;
+
+        // 1. if dot product of two vectors is negative, then the angle between the vectors is greater 
+        //    than 90 degrees;
+        // 
+        // 2. if the velocity vector is pointing away from the direction of the collision, then the 
+        //    balls are moving away from each other;
+        //
+        // 3. if the balls are moving away from each other, then they are not colliding.
+        //
+        if (dotProduct <= 0) {
+          continue;
+        }
+
+        // m1+m2
+        let totalMass = ballOne.mass + ballTwo.mass;
+
+        //   2 * m2
+        // ----------
+        //   (m1+m2)
+        let massFactorOne = 2 * ballTwo.mass / totalMass;
+
+        //   2 * m1
+        // ----------
+        //   (m1+m2)
+        let massFactorTwo = 2 * ballOne.mass / totalMass;
+
+        //  <v2-v1,x1-x2>
+        // ---------------
+        //   ||x1-x2||^2
+        let scaledMomentum = dotProduct / absDistanceSquared;
+
+        // combined scalar values:
+        //
+        //   2 * m2      <v1-v2,x1-x2>            2 * m1      <v1-v2,x1-x2>
+        // ---------- * ---------------   and   ---------- * ---------------
+        //   (m1+m2)      ||x1-x2||^2             (m1+m2)      ||x1-x2||^2
+        let scalarOne = massFactorOne * scaledMomentum;
+        let scalarTwo = massFactorTwo * scaledMomentum;
+
+        ballOne.velocity.x = ballOne.velocity.x + (scalarOne * direction.x);
+        ballOne.velocity.y = ballOne.velocity.y + (scalarTwo * direction.y);
+        ballTwo.velocity.x = ballTwo.velocity.x - (scalarOne * direction.x);
+        ballTwo.velocity.y = ballTwo.velocity.y - (scalarTwo * direction.y);
+      }
+    }
+  }
+}
+
+function render() {
+  var v = 0;
+
+  context.fillStyle = '#eeeeee';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.strokeStyle = '#000000';
+  context.strokeRect(1, 1, canvas.width-2, canvas.height-2);
+
+  balls.forEach(ball => {
+
+    ball.center.x = ball.nextCenter.x;
+    ball.center.y = ball.nextCenter.y;
+    context.fillStyle = ball.color;
+    context.beginPath();
+    context.arc(ball.center.x, ball.center.y, ball.radius, 0, 2 * Math.PI, true);
+    context.closePath();
+    context.fill();
+  });
+
+}
+
+</script>
