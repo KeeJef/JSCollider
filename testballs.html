@@ -5,9 +5,9 @@
 
 <script>
 
-const numBalls = 5;
-const minRadius = 10;
-const maxRadius = 10;
+const numBalls = 20;
+const minRadius = 5;
+const maxRadius = 5;
 const initialVelocity = 3;
 
 var canvas;
@@ -23,7 +23,7 @@ function app() {
   context = canvas.getContext('2d');
 
   speedField = 10
-  canvas.width = 400
+  canvas.width = 800
   canvas.height = 400
 
   generateBalls();
@@ -61,8 +61,8 @@ function generateBalls() {
         y: getRandomInt(0, canvas.height)
       },
       nextCenter: {},
-      velocity: polarToComponent(initialVelocity, getRandom(0, 2 * Math.PI)),
-      color: `rgb(${getRandomInt(0, 128)},${getRandomInt(0, 128)},${getRandomInt(0, 128)})`
+      velocity: polarToComponent(initialVelocity, getRandom(0, 1 * 21.5)),
+      color: `rgb(135,206,250)`
     };
 
     balls.push(ball);
@@ -146,6 +146,9 @@ function checkCollisions() {
       // ||x1-x2||^2 <= (r1+r2)^2
       if (absDistanceSquared <= minDistanceSquared) {
 
+        ballOne.color = 'rgb(95,158,160)'
+        ballTwo.color = 'rgb(95,158,160)'
+
         // velocity vector (v2-v1)
         let velocity = { 
           x: ballTwo.velocity.x - ballOne.velocity.x,
@@ -167,31 +170,13 @@ function checkCollisions() {
           continue;
         }
 
-        // m1+m2
-        let totalMass = ballOne.mass + ballTwo.mass;
-
-        //   2 * m2
-        // ----------
-        //   (m1+m2)
-        let massFactorOne = 2 * ballTwo.mass / totalMass;
-
-        //   2 * m1
-        // ----------
-        //   (m1+m2)
-        let massFactorTwo = 2 * ballOne.mass / totalMass;
-
         //  <v2-v1,x1-x2>
         // ---------------
         //   ||x1-x2||^2
         let scaledMomentum = dotProduct / absDistanceSquared;
 
-        // combined scalar values:
-        //
-        //   2 * m2      <v1-v2,x1-x2>            2 * m1      <v1-v2,x1-x2>
-        // ---------- * ---------------   and   ---------- * ---------------
-        //   (m1+m2)      ||x1-x2||^2             (m1+m2)      ||x1-x2||^2
-        let scalarOne = massFactorOne * scaledMomentum;
-        let scalarTwo = massFactorTwo * scaledMomentum;
+        let scalarOne = scaledMomentum;
+        let scalarTwo = scaledMomentum;
 
         ballOne.velocity.x = ballOne.velocity.x + (scalarOne * direction.x);
         ballOne.velocity.y = ballOne.velocity.y + (scalarTwo * direction.y);
