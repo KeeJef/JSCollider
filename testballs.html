@@ -61,7 +61,7 @@ function generateBalls() {
         y: getRandomInt(0, canvas.height)
       },
       nextCenter: {},
-      velocity: polarToComponent(initialVelocity, getRandom(0, 1 * 21.5)),
+      velocity: polarToComponent(initialVelocity, getRandom(0, 1 * Math.PI)),
       color: `rgb(135,206,250)`
     };
 
